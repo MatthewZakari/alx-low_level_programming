@@ -3,6 +3,7 @@
 
 #include <elf.h>
 #include <stdio.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -21,7 +22,7 @@
 #define CLOSE_MSG "Error: Can't close fd\n"
 
 /* Function Prototypes */
-void error_exit(int code, const char* file, const char* msg);
+void error_exit(int code, const char *file, const char *msg);
 void print_elf_header(Elf64_Ehdr *header);
 int append_text_to_file(const char *filename, char *text_content);
 int create_file(const char *filename, char *text_content);
