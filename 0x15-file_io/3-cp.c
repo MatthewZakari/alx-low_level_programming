@@ -14,13 +14,13 @@ int copyFile(const char *src_filename, const char *dest_filename)
 	src_fd = open(src_filename, O_RDONLY);
 	if (src_fd == -1)
 	{
-		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", src_filename);
+		dprintf(STDERR_FILENO, "Error: Can't read from %s\n", src_filename);
 		return (98);
 	}
 	dest_fd = open(dest_filename, O_WRONLY | O_CREAT | O_TRUNC, 0664);
 	if (dest_fd == -1)
 	{
-		dprintf(STDERR_FILENO, "Error: Can't write to file %s\n", dest_filename);
+		dprintf(STDERR_FILENO, "Error: Can't write to %s\n", dest_filename);
 		close(src_fd);
 		return (99);
 	}
@@ -28,7 +28,7 @@ int copyFile(const char *src_filename, const char *dest_filename)
 		bytes_read = read(src_fd, buffer, BUFFER_SIZE);
 		if (bytes_read == -1)
 		{
-			dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", src_filename);
+			dprintf(STDERR_FILENO, "Error: Can't read from %s\n", src_filename);
 			close(src_fd);
 			close(dest_fd);
 			return (98);
@@ -36,14 +36,14 @@ int copyFile(const char *src_filename, const char *dest_filename)
 		bytes_written = write(dest_fd, buffer, bytes_read);
 		if (bytes_written == -1 || bytes_written != bytes_read)
 		{
-			dprintf(STDERR_FILENO, "Error: Can't write to file %s\n", dest_filename);
+			dprintf(STDERR_FILENO, "Error: Can't write to %s\n", dest_filename);
 			close(src_fd);
 			close(dest_fd);
 			return (99);
 		}
 	} while (bytes_read > 0);
 	if (close(src_fd) == -1 || close(dest_fd) == -1)
-		dprintf(STDERR_FILENO, "Error: Can't close file descriptor\n");
+		dprintf(STDERR_FILENO, "Error: Can't close fd\n");
 	return (100);
 	return (0);
 }
