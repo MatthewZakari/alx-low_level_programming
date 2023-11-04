@@ -1,68 +1,73 @@
 #include "main.h"
 
 /**
- * print_elf_header - Prints the ELF header information.
- * @header: Pointer to the ELF header structure.
- *
- * Return: Nothing.
+ * check_args - Checks the number of arguments and prints usage if invalid
+ * @argc: The number of arguments
  */
-void print_elf_header(Elf64_Ehdr *header)
+void check_args(int argc)
 {
-	int i;
-
-	printf("Magic:   ");
-	for (i = 0; i < EI_NIDENT; i++)
-		printf("%02x ", header->e_ident[i]);
-	printf("\n");
-
-	printf("Class:				%d\n", header->e_ident[EI_CLASS]);
-	printf("Data:				%d\n", header->e_ident[EI_DATA]);
-	printf("Version:			%d\n", header->e_ident[EI_VERSION]);
-	printf("OS/ABI:				%d\n", header->e_ident[EI_OSABI]);
-	printf("ABI Version:			%d\n", header->e_ident[EI_ABIVERSION]);
-	printf("Type:				%d\n", header->e_type);
-	printf("Entry point address:		0x%lx\n", header->e_entry);
-}
-
-/**
- * main - Entry point of the program.
- * @argc: Argument count.
- * @argv: Argument vector.
- *
- * Return: 0 on success, 98 on error.
- */
-int main(int argc, char **argv)
-{
-	int fd;
-	Elf64_Ehdr header;
-
 	if (argc != 2)
 	{
 		fprintf(stderr, "Usage: elf_header elf_filename\n");
 		exit(98);
 	}
-	fd = open(argv[1], O_RDONLY);
-	if (fd == -1)
-	{
-		perror("Error opening file");
-		exit(98);
-	}
+}
 
-	if (read(fd, &header, sizeof(header)) != sizeof(header))
-	{
-		perror("Error reading ELF header");
-		exit(98);
-	}
-	if (header.e_ident[EI_MAG0] != ELFMAG0 ||
-			header.e_ident[EI_MAG1] != ELFMAG1 ||
-			header.e_ident[EI_MAG2] != ELFMAG2 ||
-			header.e_ident[EI_MAG3] != ELFMAG3)
-	{
-		fprintf(stderr, "Not an ELF file\n");
-		exit(98);
-	}
+/**
+ * open_and_read_file - Opens the file and reads the ELF header
+ * @filename: The name of the file to open
+ * @ehdr: Pointer to the ELF header struct
+ *
+ * Return: The file descriptor of the opened file
+ */
+int open_and_read_file(char *filename, Elf64_Ehdr *ehdr)
+{
+	int fd;
 
-	print_elf_header(&header);
+	fd = open(filename, O_RDONLY);
+	if (fd < 0 || read(fd, ehdr, sizeof(*ehdr)) < (ssize_t)sizeof(*ehdr))
+	{
+		fprintf(stderr, "Error: Can't read from file %s\n", filename);
+		exit(98);
+	}
+	return (fd);
+}
+
+/**
+ * print_elf_header - Prints the information in the ELF header
+ * @ehdr: Pointer to the ELF header struct
+ */
+void print_elf_header(Elf64_Ehdr *ehdr)
+{
+	printf("Magic:   %.2x %.2x %.2x %.2x\n", ehdr->e_ident[EI_MAG0],
+			ehdr->e_ident[EI_MAG1], ehdr->e_ident[EI_MAG2], ehdr->e_ident[EI_MAG3]);
+	printf("Class:   %s\n", ehdr->e_ident[EI_CLASS] == ELFCLASS32 ?
+			"ELF32" : "ELF64");
+	printf("Data:    %s\n", ehdr->e_ident[EI_DATA] == ELFDATA2LSB ?
+			"2's complement, little endian" : "2's complement, big endian");
+	printf("Version: %d (current)\n", ehdr->e_ident[EI_VERSION]);
+	printf("OS/ABI:  UNIX - System V\n");
+	printf("ABI Version: %d\n", ehdr->e_ident[EI_ABIVERSION]);
+	printf("Type:    %s\n", ehdr->e_type == ET_EXEC ?
+			"EXEC (Executable file)" : "Unknown");
+	printf("Entry point address:               0x%lx\n", ehdr->e_entry);
+}
+
+/**
+ * main - Entry point
+ * @argc: The number of arguments
+ * @argv: The argument vector
+ *
+ * Return: 0 on success, or an error code on failure
+ */
+int main(int argc, char **argv)
+{
+	int fd;
+	Elf64_Ehdr ehdr;
+
+	check_args(argc);
+	fd = open_and_read_file(argv[1], &ehdr);
+	print_elf_header(&ehdr);
 
 	close(fd);
 	return (0);
