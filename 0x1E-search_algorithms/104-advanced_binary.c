@@ -22,7 +22,7 @@ void print_array(int *array, size_t left, size_t right)
 }
 
 /**
- * advanced_binary_recursive - Helper function to 
+ * advanced_binary_recursive - Helper function to
  *				recursively perform binary search
  * @array: Pointer to the first element of the array to search in
  * @left: The starting index of the subarray to search
