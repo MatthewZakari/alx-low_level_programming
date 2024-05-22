@@ -1,49 +1,50 @@
-#include <math.h>
 #include "search_algos.h"
+#include <math.h>
 
 /**
- * jump_list - Searches for a value in a sorted singly
- *		linked list using the Jump search algorithm
- * @list: Pointer to the head of the list to search in
- * @size: Number of nodes in the list
- * @value: Value to search for
- *
- * Return: Pointer to the first node where value is located,
- *		or NULL if not found
+ * jump_list - searches for a value in a sorted array of integers
+ *				using the Jump search algorithm
+ * @list: pointer to the head of the list
+ * @size: size of list
+ * @value: int value we are looking for
+ * Return: Null or value index pointer
  */
 listint_t *jump_list(listint_t *list, size_t size, int value)
 {
-	size_t step, i;
-	listint_t *node, *prev_node;
+	size_t j, i;
+	listint_t *l, *r;
 
-	if (!list || size == 0)
+	if (list == NULL || size == 0)
 		return (NULL);
 
-	step = sqrt(size);
-	node = list;
-
-	while (node && node->index < size && node->n < value)
+	l = list;
+	j = sqrt(size);
+	r = l;
+	while (1)
 	{
-		prev_node = node;
-		for (i = 0; node->next && i < step; i++)
-			node = node->next;
-		printf("Value checked at index [%lu] = [%d]\n", node->index, node->n);
 
-		if (node->n >= value)
+		for (i = 0; i < j && r; i++)
+		{
+			if (r->next)
+				r = r->next;
+		}
+		printf("Value checked at index [%ld] = [%d]\n", r->index, r->n);
+		if (r->index == size - 1 || r->n >= value)
 			break;
+		else if (r->n < value)
+			l = r;
 	}
-
-	printf("Value found between indexes [%lu] and [%lu]\n",
-			prev_node->index, node->index);
-
-	for (node = prev_node; node && node->index < size && node->n <= value;
-			node = node->next)
+	printf("Value found between indexes [%ld] and [%ld]\n", l->index, r->index);
+	while (1)
 	{
-		printf("Value checked at index [%lu] = [%d]\n", node->index, node->n);
-		if (node->n == value)
-			return (node);
+		printf("Value checked at index [%ld] = [%d]\n", l->index, l->n);
+		if (l->n == value)
+			return (l);
+		if (r == l)
+			break;
+		if (l->next)
+			l = l->next;
 	}
 
 	return (NULL);
 }
-
